@@ -10,6 +10,7 @@ import {useRenderer} from '@opentui/react'
 import {useToast} from '../providers/toast'
 import {useKeyboardLayer} from '../providers/keyboard-layer'
 import {useDialog} from '../providers/dialog'
+import { useTheme } from "../providers/theme";
 
 
 type Props = {
@@ -33,6 +34,7 @@ export function InputBar({ onSubmit, disabled = false }: Props) {
   const dialog = useDialog()
   const {showCommandMenu, commandQuery, selectedIndex, scrollRef, handleContentChange, resolveCommand, setSelectedIndex} = useCommandMenu()
   const {isTopLayer, setResponder} = useKeyboardLayer()
+  const {colors} = useTheme()
 
   const handleCommand = useCallback((
     command: Command | undefined
@@ -129,14 +131,14 @@ export function InputBar({ onSubmit, disabled = false }: Props) {
         width='100%'
       >
 
-        <box position='relative' justifyContent='center' paddingX={2} paddingY={1} backgroundColor='#1A1A24' width='100%' gap={1}>
+        <box position='relative' justifyContent='center' paddingX={2} paddingY={1} backgroundColor={colors.surface} width='100%' gap={1}>
             {showCommandMenu && (
               <box
                 position='absolute'
                 bottom='100%'
                 left={0}
                 width='100%'
-                backgroundColor='#1A1A24'
+                backgroundColor={colors.surface}
                 zIndex={10}
               >
                 <CommandMenu 
