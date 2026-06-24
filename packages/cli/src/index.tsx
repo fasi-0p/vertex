@@ -10,9 +10,14 @@ import {ThemeProvider, useTheme} from './providers/theme'
 function ThemedRoot(){
   const {colors} = useTheme()
   return(
-    <box alignItems='center' justifyContent='center' backgroundColor={colors.background} height='100%' width='100%' gap={2}>
-    
-    </box>
+    <box alignItems="center" justifyContent="center" flexGrow={1}>
+            <box alignItems='center' justifyContent='center' backgroundColor='#0D0D12' height='100%' width='100%' gap={2}>
+              <Header/>
+              <box width='100%' maxWidth={78} paddingX={2}>
+                <InputBar onSubmit={()=>{}}/>
+              </box>
+            </box>
+          </box>
   )
 }
 
