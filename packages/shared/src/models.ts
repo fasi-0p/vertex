@@ -3,6 +3,8 @@ export type ModelPricing = {
   outputUsdPerMillionTokens: number;
 };
 
+//todo- add gemini and deepseek
+
 export type SupportedProvider = "anthropic" | "openai";
 
 type SupportedChatModelDefinition = {
