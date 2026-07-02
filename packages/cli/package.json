@@ -8,7 +8,8 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/react": "^19.2.17"
+    "@types/react": "^19.2.17",
+    "@vertex/server": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -16,8 +17,11 @@
   "dependencies": {
     "@opentui/core": "^0.3.4",
     "@opentui/react": "^0.3.4",
+    "@vertex/shared": "workspace:*",
+    "hono": "^4.12.27",
     "opentui-spinner": "0.0.6",
     "react": "^19.2.6",
-    "react-router": "7.14.0"
+    "react-router": "7.14.0",
+    "zod": "^4.4.3"
   }
 }
