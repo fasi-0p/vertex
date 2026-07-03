@@ -4,7 +4,7 @@ import { useKeyboard } from "@opentui/react";
 import { z } from "zod";
 import prettyMs from "pretty-ms";
 import {
-  DEFAULT_CHAT_MODEL_ID,
+  messagePartsSchema,
   type SupportedChatModelId,
 } from "@vertex/shared";
 import type { InferResponseType } from "hono/client";
@@ -21,6 +21,7 @@ import { apiClient } from "../lib/api-client";
 import { getErrorMessage } from "../lib/http-errors";
 import { MessageStatus } from "@vertex/database/enums";
 import { useKeyboardLayer } from "../providers/keyboard-layer";
+import { usePromptConfig } from "../providers/prompt-config";
 
 type SessionData =
   InferResponseType<(typeof apiClient.sessions)[":id"]["$get"], 200>;
@@ -53,18 +54,20 @@ function mapDbMessages(
       };
     }
 
+    const parsedParts = m.parts == null ? null : messagePartsSchema.safeParse(m.parts);
+    const parts: ClientMessagePart[] = parsedParts?.success
+      ? parsedParts.data.map((p) =>
+          p.type === "tool-call" ? { ...p, status: "done" as const } : p,
+        )
+      : [];
+
     return {
       id: m.id,
       role: "assistant",
       content: m.content,
       model: m.model as SupportedChatModelId,
       mode: m.mode,
-      parts: [
-        {
-          type: "text",
-          text: m.content,
-        },
-      ] as ClientMessagePart[],
+      parts,
       ...(m.duration != null
         ? {
             duration: prettyMs(m.duration * 1000),
@@ -81,7 +84,7 @@ function ChatMessage({
   msg: Message;
 }) {
   if (msg.role === "user") {
-    return <UserMessage message={msg.content} />;
+    return <UserMessage message={msg.content} mode={msg.mode} />;
   }
 
   if (msg.role === "error") {
@@ -108,7 +111,7 @@ function SessionChat({
   const [initialMessages] = useState(() =>
     mapDbMessages(session.messages),
   );
-
+  const {mode, model} = usePromptConfig()
   const { isTopLayer } = useKeyboardLayer();
 
   const {
@@ -138,13 +141,7 @@ function SessionChat({
 
   return (
     <SessionShell
-      onSubmit={(text) =>
-        submit({
-          userText: text,
-          mode: "BUILD",
-          model: DEFAULT_CHAT_MODEL_ID,
-        })
-      }
+      onSubmit={(text) => submit({ userText: text, mode, model })}
       loading={streaming.status === "streaming"}
       interruptible={streaming.status === "streaming"}
     >
