@@ -3,7 +3,7 @@ import { streamSSE } from "hono/streaming";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { streamText as aiStreamText } from "ai";
-import { db } from "@vertex/database/client";
+import { db } from "@vertex/database";
 import { Mode, MessageStatus } from "@vertex/database/enums";
 import { type ChatStreamEvent } from "@vertex/shared";
 import { isSupportedChatModel, resolveChatModel } from "../lib/models";
