@@ -1,11 +1,16 @@
 import type{ToastContextValue} from '../../providers/toast'
 import type{DialogContextValue} from '../../providers/dialog'
+import type { SupportedChatModelId } from "@vertex/shared";
+import type { Mode } from "@vertex/database/enums";
 
 export type CommandContext={
     exit:()=> void
     toast: ToastContextValue
     dialog: DialogContextValue
-    navigate: (path:string)=> void
+    navigate: (path: string) => void;
+    mode: Mode;
+    setMode: (mode: Mode) => void;
+    setModel: (model: SupportedChatModelId) => void;
 }
 
 export type Command = {

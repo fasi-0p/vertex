@@ -6,12 +6,14 @@ import {useRef, useCallback, useEffect} from 'react'
 import type{TextareaRenderable} from '@opentui/core'
 import {useCommandMenu} from './command-menu/use-command-menu'
 import type{Command} from './command-menu/types'
-import {useRenderer} from '@opentui/react'
+import {useKeyboard, useRenderer} from '@opentui/react'
 import {useToast} from '../providers/toast'
 import {useKeyboardLayer} from '../providers/keyboard-layer'
 import {useDialog} from '../providers/dialog'
 import { useTheme } from "../providers/theme";
 import {useNavigate} from 'react-router'
+import {usePromptConfig} from '../providers/prompt-config'
+import {Mode} from '@vertex/database/enums'
 
 type Props = {
   onSubmit: (text: string) => void;
@@ -26,7 +28,7 @@ export const TEXTAREA_KEY_BINDINGS: KeyBinding[] = [
 ];
 
 export function InputBar({ onSubmit, disabled = false }: Props) {
-  
+  const {mode, toggleMode, setMode, setModel} = usePromptConfig()
   const textareaRef = useRef<TextareaRenderable>(null)
   const onSubmitRef = useRef<()=> void>(()=> {})
   const renderer = useRenderer()
@@ -49,12 +51,15 @@ export function InputBar({ onSubmit, disabled = false }: Props) {
         exit: ()=> renderer.destroy(),
         toast,
         dialog,
-        navigate
+        navigate,
+        mode,
+        setMode,
+        setModel
       })
     }else {
       textarea.insertText(command.value + " ")
     }
-  }, [renderer, toast, dialog, navigate])
+  }, [renderer, toast, dialog, navigate, mode, setMode, setModel])
 
   const handleTextareaContentChange = useCallback(()=>{
     const textarea = textareaRef.current
@@ -75,6 +80,15 @@ export function InputBar({ onSubmit, disabled = false }: Props) {
     onSubmit(text)
     textarea.setText('')
   }, [disabled, onSubmit])
+
+  useKeyboard((key)=>{
+    if(disabled) return
+    if(!isTopLayer('base')) return
+    if(key.name==='tab'){
+      key.preventDefault()
+      toggleMode()
+    }
+  })
 
   useEffect(()=>{
     const textarea = textareaRef.current
@@ -124,7 +138,7 @@ export function InputBar({ onSubmit, disabled = false }: Props) {
     <box width="100%" alignItems="center">
       <box
         border={['left']}
-        borderColor={colors.primary}
+        borderColor={mode===Mode.BUILD? colors.primary : colors.planMode}
         customBorderChars={{
           ...EmptyBorder,
           vertical: "┃",

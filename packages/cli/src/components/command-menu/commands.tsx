@@ -1,5 +1,7 @@
 import type { Command } from "./types";
-import { ThemeDialogContent,SessionsDialogContent } from "../dialogs";
+import { ThemeDialogContent,SessionsDialogContent, ModelsDialogContent } from "../dialogs";
+import {SUPPORTED_CHAT_MODELS} from '@vertex/shared'
+
 
 export const COMMANDS: Command[] = [
   {
@@ -35,8 +37,13 @@ export const COMMANDS: Command[] = [
     value: "/models",
     action:(ctx)=>{
       ctx.dialog.open({
-        title: 'Select Model',
-        children:<text> Model Selection coming soon...</text>
+        title: 'Select Agent',
+        children:(
+          <ModelsDialogContent
+            models={SUPPORTED_CHAT_MODELS.map((model)=>model.id)}
+            onSelectModel={ctx.setModel}
+          />
+        )
       })
     }
   },
