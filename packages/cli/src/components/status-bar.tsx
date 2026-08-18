@@ -1,7 +1,7 @@
 import { TextAttributes } from "@opentui/core";
 import { useTheme } from "../providers/theme";
 import { usePromptConfig } from "../providers/prompt-config";
-import { Mode } from "@vertex/database/enums";
+import { Mode } from "@vertex/shared";
 
 // todo: have color to different models depicting its power. ie red for opus 4.6, green for haiku etc
 export function StatusBar() {

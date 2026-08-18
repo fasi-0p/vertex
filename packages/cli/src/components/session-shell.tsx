@@ -17,9 +17,10 @@ export function SessionShell({
   onSubmit,
   inputDisabled = false,
   loading = false,
-  interruptible=false
+  interruptible = false,
 }: Props) {
   const { mode } = usePromptConfig();
+
   return (
     <box
       flexDirection="column"
@@ -31,7 +32,7 @@ export function SessionShell({
       gap={1}
     >
       <scrollbox flexGrow={1} width="100%" stickyScroll stickyStart="bottom">
-        <box gap={1}>{children}</box>
+        <box>{children}</box>
       </scrollbox>
       <box flexShrink={0}>
         <InputBar onSubmit={onSubmit} disabled={inputDisabled} />
@@ -48,7 +49,7 @@ export function SessionShell({
         <box flexDirection="row" alignItems="center" gap={2}>
           {loading ? (
             <>
-              <Spinner mode={mode}/>
+              <Spinner mode={mode} />
               {interruptible ? <text>esc to interrupt</text> : null}
             </>
           ) : null}

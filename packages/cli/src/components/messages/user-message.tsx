@@ -1,10 +1,10 @@
+import { Mode, type ModeType } from "@vertex/shared";
 import { EmptyBorder } from "../border";
 import { useTheme } from "../../providers/theme";
-import { Mode } from "@vertex/database/enums";
 
 type Props = {
   message: string;
-  mode: Mode
+  mode: ModeType;
 };
 
 export function UserMessage({ message, mode }: Props) {

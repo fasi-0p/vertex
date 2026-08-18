@@ -20,7 +20,7 @@
     "@polar-sh/sdk": "0.47.1",
     "@vertex/database": "workspace:*",
     "@vertex/shared": "workspace:*",
-    "ai": "^7.0.11",
+    "ai": "^7.0.66",
     "dotenv": "^17.4.2",
     "hono": "^4.12.27",
     "zod": "4.3.6"

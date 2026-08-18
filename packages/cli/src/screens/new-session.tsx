@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { z } from "zod";
-import { Mode } from "@vertex/database/enums";
+import { Mode, modeSchema } from "@vertex/shared";
 import { useNavigate, useLocation } from "react-router";
-
 import { SessionShell } from "../components/session-shell";
 import { UserMessage } from "../components/messages";
 import { useToast } from "../providers/toast";
@@ -11,21 +10,20 @@ import { getErrorMessage } from "../lib/http-errors";
 
 const newSessionStateSchema = z.object({
   message: z.string(),
-  mode: z.enum(Mode),
+  mode: modeSchema,
   model: z.string(),
 });
 
 export function NewSession() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const toast = useToast();
   const hasStartedRef = useRef(false);
 
   const state = useMemo(() => {
     const parsed = newSessionStateSchema.safeParse(location.state);
     return parsed.success ? parsed.data : null;
-  }, [location.state]);
+  }, [location.state])
 
   // Guard: if navigated here directly without state, go home
   useEffect(() => {
@@ -41,51 +39,34 @@ export function NewSession() {
     hasStartedRef.current = true;
 
     let ignore = false;
-
     const createSession = async () => {
       try {
         const res = await apiClient.sessions.$post({
           json: {
             title: state.message.slice(0, 100),
-            cwd: process.cwd(),
-            initialMessage: {
-              role: "USER",
-              content: state.message,
-              mode: state.mode,
-              model: state.model,
-            },
           },
         });
 
         if (ignore) return;
-
         if (!res.ok) {
           throw new Error(await getErrorMessage(res));
         }
-
         const session = await res.json();
-
-        navigate(`/sessions/${session.id}`, {
-          replace: true,
-          state: { session },
-        });
+        navigate(
+          `/sessions/${session.id}`,
+          { replace: true, state: { session, initialPrompt: state } }
+        );
       } catch (error) {
         if (ignore) return;
-
         toast.show({
           variant: "error",
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to create session",
+          message: error instanceof Error ? error.message : "Failed to create session",
         });
-
         navigate("/", { replace: true });
       }
     };
 
     createSession();
-
     return () => {
       ignore = true;
     };
@@ -98,4 +79,4 @@ export function NewSession() {
       <UserMessage message={state.message} mode={state.mode} />
     </SessionShell>
   );
-}
+};
