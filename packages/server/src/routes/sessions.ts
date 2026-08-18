@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db } from "@vertex/database";
 import { Role, Mode, MessageStatus } from "@vertex/database/enums";
 import { findSupportedChatModel } from "@vertex/shared";
+import type { AuthenticatedEnv } from "../middleware/require-auth";
 
 const createSessionSchema = z.object({
   title: z.string(),
@@ -27,9 +28,11 @@ const createSessionValidator = zValidator(
   }
 });
 
-const app = new Hono()
+const app = new Hono<AuthenticatedEnv>()
   .get("/", async (c) => {
+    const userId = c.get("userId");
     const sessions = await db.session.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -51,9 +54,10 @@ const app = new Hono()
     // )
 
     const id = c.req.param("id");
+    const userId = c.get("userId");
     
     const session = await db.session.findUnique({
-      where: { id },
+      where: { id, userId },
       include: {
         messages: { orderBy: { createdAt: "asc" } },
       },
@@ -76,11 +80,11 @@ const app = new Hono()
     // )
 
     const { initialMessage, ...data } = c.req.valid("json");
-
+    const userId = c.get("userId");
     const session = await db.session.create({
       data: {
         ...data,
-        userId: "mock-user",
+        userId: userId,
         ...(initialMessage && {
           messages: {
             create: {
