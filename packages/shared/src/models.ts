@@ -5,7 +5,7 @@ export type ModelPricing = {
 
 //todo- add gemini and deepseek
 
-export type SupportedProvider = "anthropic" | "openai";
+export type SupportedProvider = "anthropic" | "openai" | 'deepseek';
 
 type SupportedChatModelDefinition = {
   id: string;
@@ -14,6 +14,14 @@ type SupportedChatModelDefinition = {
 };
 
 export const SUPPORTED_CHAT_MODELS = [
+  {
+    id:'deepseek-v4-flash',
+    provider:'deepseek',
+    pricing:{
+      inputUsdPerMillionTokens:0.14,
+      outputUsdPerMillionTokens:0.28,
+    }
+  },
   {
     id: "claude-sonnet-4-6",
     provider: "anthropic",

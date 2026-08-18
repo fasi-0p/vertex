@@ -1,6 +1,6 @@
-//todo- add gemini and deepseek
 import { anthropic } from "@ai-sdk/anthropic";
 import { openai } from "@ai-sdk/openai";
+import { deepseek } from "@ai-sdk/deepseek";
 import {
   findSupportedChatModel,
   type SupportedChatModel,
@@ -8,11 +8,27 @@ import {
   type SupportedProvider,
 } from "@vertex/shared";
 import type { LanguageModel } from "ai";
-import type{ProviderOptions} from '@ai-sdk/provider-utils'
+import type { ProviderOptions } from "@ai-sdk/provider-utils";
 
-type GeminiModelId = Extract<SupportedChatModel, { provider: "google" }>["id"];
-type AnthropicModelId = Extract<SupportedChatModel, { provider: "anthropic" }>["id"];
-type OpenAIModelId = Extract<SupportedChatModel, { provider: "openai" }>["id"];
+type GeminiModelId = Extract<
+  SupportedChatModel,
+  { provider: "google" }
+>["id"];
+
+type AnthropicModelId = Extract<
+  SupportedChatModel,
+  { provider: "anthropic" }
+>["id"];
+
+type OpenAIModelId = Extract<
+  SupportedChatModel,
+  { provider: "openai" }
+>["id"];
+
+type DeepSeekModelId = Extract<
+  SupportedChatModel,
+  { provider: "deepseek" }
+>["id"];
 
 export type ResolvedModel = {
   model: LanguageModel;
@@ -21,15 +37,18 @@ export type ResolvedModel = {
   providerOptions?: ProviderOptions;
 };
 
-const ANTHROPIC_PROVIDER_OPTIONS: Partial<Record<AnthropicModelId, ProviderOptions>> = {
+const ANTHROPIC_PROVIDER_OPTIONS: Partial<
+  Record<AnthropicModelId, ProviderOptions>
+> = {
   "claude-opus-4-6": {
     anthropic: {
       thinking: {
         type: "enabled",
         budgetTokens: 10000,
-      }
+      },
     },
   },
+
   "claude-sonnet-4-6": {
     anthropic: {
       thinking: {
@@ -40,60 +59,101 @@ const ANTHROPIC_PROVIDER_OPTIONS: Partial<Record<AnthropicModelId, ProviderOptio
   },
 };
 
-const OPENAI_PROVIDER_OPTIONS: Partial<Record<OpenAIModelId, ProviderOptions>> = {
+const OPENAI_PROVIDER_OPTIONS: Partial<
+  Record<OpenAIModelId, ProviderOptions>
+> = {
   "gpt-5.4": {
     openai: {
       thinking: {
         reasoningSummary: "detailed",
-      }
+      },
     },
   },
-}
+};
+
+const DEEPSEEK_PROVIDER_OPTIONS: Partial<
+  Record<DeepSeekModelId, ProviderOptions>
+> = {
+  "deepseek-v4-flash": {
+    deepseek: {
+      thinking: {
+        type: "enabled",
+      },
+    },
+  },
+};
 
 function assertUnsupportedProvider(provider: never): never {
   throw new Error(`Unsupported provider: ${provider}`);
-};
+}
 
-function resolveAnthropicModel(modelId: AnthropicModelId): ResolvedModel {
+function resolveAnthropicModel(
+  modelId: AnthropicModelId
+): ResolvedModel {
   return {
     model: anthropic(modelId),
     provider: "anthropic",
     modelId,
     providerOptions: ANTHROPIC_PROVIDER_OPTIONS[modelId],
   };
-};
+}
 
-function resolveOpenAIModel(modelId: OpenAIModelId): ResolvedModel {
+function resolveOpenAIModel(
+  modelId: OpenAIModelId
+): ResolvedModel {
   return {
     model: openai(modelId),
     provider: "openai",
     modelId,
     providerOptions: OPENAI_PROVIDER_OPTIONS[modelId],
   };
-};
+}
 
-function resolveSupportedChatModel(model: SupportedChatModel): ResolvedModel {
+function resolveDeepSeekModel(
+  modelId: DeepSeekModelId
+): ResolvedModel {
+  return {
+    model: deepseek(modelId),
+    provider: "deepseek",
+    modelId,
+    providerOptions: DEEPSEEK_PROVIDER_OPTIONS[modelId],
+  };
+}
+
+function resolveSupportedChatModel(
+  model: SupportedChatModel
+): ResolvedModel {
   const provider = model.provider;
 
   switch (provider) {
     case "anthropic":
       return resolveAnthropicModel(model.id);
+
     case "openai":
       return resolveOpenAIModel(model.id);
+
+    case "deepseek":
+      return resolveDeepSeekModel(model.id);
+
     default:
       return assertUnsupportedProvider(provider);
   }
-};
+}
 
-export function isSupportedChatModel(modelId: string): modelId is SupportedChatModelId {
+export function isSupportedChatModel(
+  modelId: string
+): modelId is SupportedChatModelId {
   return findSupportedChatModel(modelId) != null;
-};
+}
 
-export function resolveChatModel(modelId: string): ResolvedModel {
+export function resolveChatModel(
+  modelId: string
+): ResolvedModel {
   const model = findSupportedChatModel(modelId);
+
   if (!model) {
     throw new Error(`Unsupported model: ${modelId}`);
   }
 
   return resolveSupportedChatModel(model);
-};
+}
