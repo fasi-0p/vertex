@@ -10,9 +10,12 @@ export const requireCreditsBalance = createMiddleware<AuthenticatedEnv>(async (c
     // This is a simple launch-time gate: only start new work when the customer
     // still has credits left. It does not reserve the full eventual cost of the
     // request, so low-volume apps may tolerate small overspend on edge cases.
-    if (creditsBalance <= 0) {
-      return c.json({ error: "No credits remaining. Run /upgrade to buy more credits." }, 402);
-    }
+    
+    // billing
+    //if you ever wanna enable credit check just uncomment this check
+    // if (creditsBalance <= 0) {
+    //   return c.json({ error: "No credits remaining. Run /upgrade to buy more credits." }, 402);
+    // }
 
     await next();
   } catch {
